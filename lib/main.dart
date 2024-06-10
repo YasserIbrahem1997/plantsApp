@@ -7,10 +7,14 @@ import 'package:flutter_application_6/screens/auth/login.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'firebase_options.dart';
 
-
-void main() async 
+import 'package:timezone/timezone.dart' as tz;
+import 'package:timezone/data/latest.dart' as tz;
+void main() async
 {
- WidgetsFlutterBinding.ensureInitialized();
+  tz.initializeTimeZones();
+  var locations = tz.timeZoneDatabase.locations;
+
+  WidgetsFlutterBinding.ensureInitialized();
  await Firebase.initializeApp(
   options: DefaultFirebaseOptions.currentPlatform
  );

@@ -49,6 +49,11 @@ dependencies:
   cloud_firestore:
   cached_network_image:
   loading_indicator:
+  intl:
+  firebase_messaging:
+  flutter_local_notifications:
+  timezone: ^0.9.3
+
   #firebase_analytics: ^10.10.5
   
 

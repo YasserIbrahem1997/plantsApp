@@ -249,7 +249,7 @@ class _HomePageState extends State<HomePage> {
                           height: 30,
                         ),
                         Text(
-                          'Categories',
+                          'Indoor',
                           style: TextStyle(
                             color: Color.fromARGB(255, 5, 77, 59),
                             fontSize: 20,
@@ -259,12 +259,11 @@ class _HomePageState extends State<HomePage> {
                         SizedBox(
                           height: 10,
                         ),
-
-                  Container(
+                        Container(
                     height: 250,
                     width: double.infinity,
                     child: StreamBuilder<QuerySnapshot>(
-                      stream: FirebaseFirestore.instance.collection('category').snapshots(),
+                      stream: FirebaseFirestore.instance.collection('category').where('Place', isEqualTo: 'Indoor').snapshots(),
                       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
                         if (snapshot.connectionState == ConnectionState.waiting) {
                           return Center(child: CircularProgressIndicator());
@@ -313,7 +312,7 @@ class _HomePageState extends State<HomePage> {
                                }));
                              },
                               child: Container(
-
+                                width: 200,
                                 height: 300,
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.start,
@@ -321,7 +320,7 @@ class _HomePageState extends State<HomePage> {
                                   children: [
                                     Container(
                                       decoration:BoxDecoration(
-                                       
+
                                         borderRadius: BorderRadius.all(Radius.circular(4)),
                                 ),
                                       width: 200,
@@ -332,7 +331,8 @@ class _HomePageState extends State<HomePage> {
 
                                       ),
                                     ),
-                                    Text(product.planetName ?? 'No Name'),
+                                    Text(product.planetName ?? 'No Name',
+                                    maxLines: 1,),
                                     Text('${product.plantPricing ?? 'No Price'} EG'),
                                   ],
                                 ),
@@ -344,8 +344,11 @@ class _HomePageState extends State<HomePage> {
                       },
                     ),
                   ),
+                        SizedBox(
+                          height: 30,
+                        ),
                         Text(
-                          'Diseases',
+                          'Outdoor',
                           style: TextStyle(
                             color: Color.fromARGB(255, 5, 77, 59),
                             fontSize: 20,
@@ -353,16 +356,93 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ),
                         SizedBox(
-                          height: 120,
+                          height: 10,
                         ),
-                        Text(
-                          'Articles and care guide',
-                          style: TextStyle(
-                            color: Color.fromARGB(255, 5, 77, 59),
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        )
+                        Container(
+                    height: 250,
+                    width: double.infinity,
+                    child: StreamBuilder<QuerySnapshot>(
+                      stream: FirebaseFirestore.instance.collection('category').where('Place', isEqualTo: 'Outdoor').snapshots(),
+                      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return Center(child: CircularProgressIndicator());
+                        }
+
+                        if (snapshot.hasError) {
+                          return Text('Error: ${snapshot.error}');
+                        }
+
+                        var documents = snapshot.data?.docs ?? [];
+
+                        if (documents.isEmpty) {
+                          return Container(
+                            height: MediaQuery.of(context).size.height / 1,
+                            padding: EdgeInsets.all(12.0),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Center(
+                              child: Text(
+                                "لا يوجد اقسام الان برجاء المتابعه",
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ),
+                          );
+                        }
+
+                        List<ProductHome> productsBySection = documents.map((doc) {
+                          var data = doc.data() as Map<String, dynamic>;
+                          return ProductHome.fromJson(data);
+                        }).toList();
+
+                        return ListView.separated(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: productsBySection.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            var product = productsBySection[index];
+
+                            return GestureDetector(
+                             onTap: (){
+                               Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) {
+                                 return Plantscreen(Product:productsBySection[index]);
+                               }));
+                             },
+                              child: Container(
+                                width: 200,
+                                height: 300,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Container(
+                                      decoration:BoxDecoration(
+
+                                        borderRadius: BorderRadius.all(Radius.circular(4)),
+                                ),
+                                      width: 200,
+                                      height: 200,
+                                      child:Image.network(
+                                          product.imageUrls![0],
+                                        fit: BoxFit.fill,
+
+                                      ),
+                                    ),
+                                    Text(product.planetName ?? 'No Name',maxLines: 1,overflow: TextOverflow.ellipsis,),
+                                    Text('${product.plantPricing ?? 'No Price'} EG'),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                          separatorBuilder: (BuildContext context, int index) => SizedBox(width: 15),
+                        );
+                      },
+                    ),
+                  ),
+
                       ],
                     ))),
           ),

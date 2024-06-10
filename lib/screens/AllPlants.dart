@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_6/screens/reminders.dart';
+import 'package:flutter_application_6/screens/reminders/reminders.dart';
 import 'package:flutter_application_6/widgets/background-color.dart';
 import 'package:flutter_application_6/widgets/bottombar.dart';
 
