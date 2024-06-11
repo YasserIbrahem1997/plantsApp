@@ -307,3 +307,38 @@ class ProductFavorite {
     ];
   }
 }
+class disease {
+  final List<String>? imageUrls;
+  final String? diseaseName;
+  final String? description;
+  disease({
+    this.imageUrls,
+    this.diseaseName,
+    this.description,
+
+  });
+
+  factory disease.fromJson(Map<String, dynamic> json) {
+    List<String> extractImageUrls(dynamic imageUrlData) {
+      if (imageUrlData is List) {
+        return List<String>.from(imageUrlData);
+      } else {
+        return [];
+      }
+    }
+
+    return disease(
+      imageUrls: extractImageUrls(json['imageUrl']),
+      diseaseName: json['diseaseName'] ?? " ",
+      description: json['description'] ?? " ",
+
+    );
+  }
+  // Method to get a list of Image.network widgets
+  List<Widget> getImageWidgets() {
+    return [
+      for (String imageUrl in imageUrls!)
+        Image.network(imageUrl, width: 100, height: 100),
+    ];
+  }
+}

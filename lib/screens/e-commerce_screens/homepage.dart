@@ -503,6 +503,106 @@ class _HomePageState extends State<HomePage> {
                         );
                       },
                     ),
+                  ), SizedBox(
+                          height: 30,
+                        ),
+                        Text(
+                          'Outdoor',
+                          style: TextStyle(
+                            color: Color.fromARGB(255, 5, 77, 59),
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Container(
+                    height: 250,
+                    width: double.infinity,
+                    child: StreamBuilder<QuerySnapshot>(
+                      stream: FirebaseFirestore.instance.collection('diseases').snapshots(),
+                      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return Center(child: CircularProgressIndicator());
+                        }
+
+                        if (snapshot.hasError) {
+                          return Text('Error: ${snapshot.error}');
+                        }
+
+                        var documents = snapshot.data?.docs ?? [];
+
+                        if (documents.isEmpty) {
+                          return Container(
+                            height: MediaQuery.of(context).size.height / 1,
+                            padding: EdgeInsets.all(12.0),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Center(
+                              child: Text(
+                                "لا يوجد اقسام الان برجاء المتابعه",
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ),
+                          );
+                        }
+
+                        List<disease> productsBySection = documents.map((doc) {
+                          var data = doc.data() as Map<String, dynamic>;
+                          return disease.fromJson(data);
+                        }).toList();
+
+                        return ListView.separated(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: productsBySection.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            var product = productsBySection[index];
+
+                            return GestureDetector(
+                              onTap: () {
+
+                              },
+                              child: Container(
+                                width: 200,
+                                height: 300,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.all(Radius.circular(4)),
+                                      ),
+                                      width: 200,
+                                      height: 180,
+                                      child: Image.network(
+                                        product.imageUrls![0],
+                                        fit: BoxFit.fill,
+                                      ),
+                                    ),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          product.diseaseName ?? 'No Name',
+                                          maxLines: 1,
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                          separatorBuilder: (BuildContext context, int index) => SizedBox(width: 15),
+                        );
+                      },
+                    ),
                   ),
 
                       ],
