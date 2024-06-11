@@ -21,12 +21,6 @@ void main() async
   runApp(const MyApp()); 
 }
 
-class Product {
-  final String name;
-  final double price;
-
-  Product(this.name, this.price);
-}
 
 class MyApp extends StatelessWidget {
   const MyApp({key});
@@ -34,10 +28,9 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    //Color customColor = Color(0xFF2BA578);
-    //Color customColor = Color(0xFFE8F6B8);
 
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Plantopia',
       theme: ThemeData(
         useMaterial3: true,

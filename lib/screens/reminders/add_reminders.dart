@@ -38,7 +38,7 @@ class _AddReminderPageState extends State<AddReminderPage> {
 
   @override
   void initState() {
-    categoriesStream = categoryCollection.snapshots().map((querySnapshot) =>
+    categoriesStream =  FirebaseFirestore.instance.collection('category').snapshots().map((querySnapshot) =>
         querySnapshot.docs.map((doc) => doc['planetName'] as String).toList());
     super.initState();
     AndroidInitializationSettings androidInitializationSettings =
@@ -67,7 +67,7 @@ class _AddReminderPageState extends State<AddReminderPage> {
       tz.TZDateTime scheduledAT = tz.TZDateTime.from(dateTimeNow, tz.local);
       flutterLocalNotificationsPlugin.zonedSchedule(
           0, selectTypeCateugore,
-          _timeController.text,
+         "water your plants ${_timeController.text}",
           scheduledAT,
           notificationDetails,
           uiLocalNotificationDateInterpretation:
@@ -81,7 +81,7 @@ class _AddReminderPageState extends State<AddReminderPage> {
         context: context,
         initialDate: dateTimeNow,
         firstDate: DateTime.now(),
-        lastDate: DateTime(2101),
+        lastDate: DateTime(2028),
       );
       if (newSelectedDate == null) {
         return;
@@ -308,8 +308,8 @@ class _AddReminderPageState extends State<AddReminderPage> {
                         hint: selectTypeCateugore == null
                             ? Container(
                           child: Text(
-                            " ",
-                            textAlign: TextAlign.right,
+                            " Select Plant",
+                            textAlign: TextAlign.left,
                             style: TextStyle(),
                           ),
                         )

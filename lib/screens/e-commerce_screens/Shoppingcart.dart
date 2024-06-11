@@ -121,7 +121,9 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
                     var product = productsBySection[index];
                     return ListTile(
                       title: Text(product.planetName.toString()),
-                      subtitle: Text('\$${product.plantPricing.toString()}'),
+                      subtitle: Text('\$${product.plantPricing.toString()}', style: TextStyle(
+                        color: Colors.black
+                      ),),
                       trailing: IconButton(
                         icon: Icon(Icons.remove_shopping_cart, color: Color(0xFF054D3B)),
                         onPressed: () => _removeFromCart(product, user.email!),

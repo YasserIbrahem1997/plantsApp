@@ -18,17 +18,10 @@ class Recommendation extends StatefulWidget {
 
 class _RecommendationState extends State<Recommendation> {
 
-  int _selectedIndex = 1;
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
   String? selectedValueLight;
   String? selectedValueDifficulty;
   String? selectedValueColor;
   String? selectedValuePlace;
-  final Map<int, String?> _selectedOptions = {};
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -372,7 +365,7 @@ class _RecommendationState extends State<Recommendation> {
                                 .collection('category')
                                 // .where('lightNeeded', isEqualTo: selectedValueLight)
                                 .where('Place', isEqualTo: selectedValuePlace)
-                                // .where('difficult', isEqualTo: selectedValueDifficulty)
+                                .where('difficult', isEqualTo: selectedValueDifficulty)
                                 .where('FlowerColor', isEqualTo: selectedValueColor)
                                 .get();
 

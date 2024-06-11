@@ -148,6 +148,17 @@ class CheckoutPage extends StatelessWidget {
                 // إضافة مسافة بين حقول الإدخال
 
                 Text(
+                  'Payment : In Cash',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                  ),
+                ),
+                SizedBox(height: 20),
+                // إضافة مسافة بين حقول الإدخال
+
+                Text(
                   'Order',
                   style: TextStyle(
                     color: Colors.black,

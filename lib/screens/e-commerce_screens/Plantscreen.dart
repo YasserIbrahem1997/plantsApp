@@ -5,9 +5,30 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../../model/get_data_home.dart';
-class Plantscreen extends StatelessWidget {
+class Plantscreen extends StatefulWidget {
   final ProductHome Product;
    Plantscreen({required this.Product});
+
+  @override
+  State<Plantscreen> createState() => _PlantscreenState();
+}
+
+class _PlantscreenState extends State<Plantscreen> {
+  void _toggleFavorite(ProductHome product) async {
+    final userId = FirebaseAuth.instance.currentUser!.email;
+    final favoritesCollection = FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('favorites');
+
+    if (product.isFavorite) {
+      // Add to favorites
+      await favoritesCollection.doc(product.planetName).set(product.toJson());
+    } else {
+      // Remove from favorites
+      await favoritesCollection.doc(product.planetName).delete();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +48,7 @@ class Plantscreen extends StatelessWidget {
                     // Adjust height as needed
                     alignment: Alignment.center,
                     child: Image.network(
-                      Product.imageUrls![0], // Use product's image URL
+                      widget.Product.imageUrls![0], // Use product's image URL
                       fit: BoxFit.cover,// Adjust height as needed
                       height: MediaQuery.of(context).size.height /2.5,
                       width: double.infinity,
@@ -56,16 +77,39 @@ class Plantscreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Name Plants',
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xff000000),
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                        'Plant Name',
+                          maxLines: 1,
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xff000000),
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(
+                            widget.Product.isFavorite == true ? Icons.favorite : Icons.favorite_border,
+                            color: widget.Product.isFavorite == true ? Colors.red : Colors.grey,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              widget.Product.isFavorite = !widget.Product.isFavorite;
+                            });
+                            _toggleFavorite(widget.Product);
+                            widget.Product.isFavorite == true? FirebaseFirestore.instance.collection("category").doc(widget.Product.idPlants).update({
+                              "isFavorite":true,
+                            }) :FirebaseFirestore.instance.collection("category").doc(widget.Product.idPlants).update({
+                              "isFavorite":false,
+                            }) ;
+                          },
+                        ),
+                      ],
                     ),
                     Text(
-                      Product.planetName.toString(),
+                      widget.Product.planetName.toString(),
                       style: TextStyle(
                         fontSize: 18,
                         color: Color(0xff979595),
@@ -91,7 +135,7 @@ class Plantscreen extends StatelessWidget {
                     ),
                     SizedBox(height: 5),
                     Text(
-                      Product.plantPricing.toString() + " " + "LE",
+                      widget.Product.plantPricing.toString() + " " + "LE",
                       style: TextStyle(
                         fontSize: 18,
                         color: Color(0xff979595),
@@ -118,7 +162,7 @@ class Plantscreen extends StatelessWidget {
                     ),
                     SizedBox(height: 5),
                     Text(
-                      Product.planetDescriotion.toString(),
+                      widget.Product.planetDescriotion.toString(),
                       style: TextStyle(
                         fontSize: 18,
                         color: Color(0xff979595),
@@ -143,7 +187,7 @@ class Plantscreen extends StatelessWidget {
                     ),
                     SizedBox(height: 5),
                     Text(
-                      Product.date.toString(),
+                      widget.Product.date.toString(),
                       style: TextStyle(
                         fontSize: 18,
                         color: Color(0xff979595),
@@ -167,7 +211,7 @@ class Plantscreen extends StatelessWidget {
                     ),
                     SizedBox(height: 5),
                     Text(
-                      Product.StartDate.toString(),
+                      widget.Product.StartDate.toString(),
                       style: TextStyle(
                         fontSize: 18,
                         color: Color(0xff979595),
@@ -192,7 +236,7 @@ class Plantscreen extends StatelessWidget {
                     SizedBox(height: 5),
 
                     Text(
-                      Product.EndDate.toString(),
+                      widget.Product.EndDate.toString(),
                       style: TextStyle(
                         fontSize: 18,
                         color: Color(0xff979595),
@@ -224,6 +268,7 @@ class Plantscreen extends StatelessWidget {
     );
 
   }
+
   void addToCart(BuildContext context) async {
 
 
@@ -236,12 +281,12 @@ class Plantscreen extends StatelessWidget {
 
       // Add product to the cart
       await cart.add({
-        'planetName': Product.planetName,
-        'price': Product.plantPricing,
-        'imageUrl': Product.imageUrls![0],
-        'startDate': Product.StartDate,
-        'date': Product.date,
-        'endDate': Product.EndDate,
+        'planetName': widget.Product.planetName,
+        'price': widget.Product.plantPricing,
+        'imageUrl': widget.Product.imageUrls![0],
+        'startDate': widget.Product.StartDate,
+        'date': widget.Product.date,
+        'endDate': widget.Product.EndDate,
       });
 
       // Show success message
@@ -257,7 +302,6 @@ class Plantscreen extends StatelessWidget {
       );
     }
   }
-
 }
 class DraggableBoxes extends StatefulWidget {
   @override

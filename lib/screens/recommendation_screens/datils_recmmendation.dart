@@ -5,10 +5,30 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../../model/get_data_home.dart';
-class DetailsRecommendationScreen extends StatelessWidget {
+class DetailsRecommendationScreen extends StatefulWidget {
   final ProductHome Product;
   DetailsRecommendationScreen({required this.Product});
 
+  @override
+  State<DetailsRecommendationScreen> createState() => _DetailsRecommendationScreenState();
+}
+
+class _DetailsRecommendationScreenState extends State<DetailsRecommendationScreen> {
+  void _toggleFavorite(ProductHome product) async {
+    final userId = FirebaseAuth.instance.currentUser!.email;
+    final favoritesCollection = FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('favorites');
+
+    if (product.isFavorite) {
+      // Add to favorites
+      await favoritesCollection.doc(product.planetName).set(product.toJson());
+    } else {
+      // Remove from favorites
+      await favoritesCollection.doc(product.planetName).delete();
+    }
+  }
   @override
   Widget build(BuildContext context) {
 
@@ -27,7 +47,7 @@ class DetailsRecommendationScreen extends StatelessWidget {
                     // Adjust height as needed
                     alignment: Alignment.center,
                     child: Image.network(
-                      Product.imageUrls![0], // Use product's image URL
+                      widget.Product.imageUrls![0], // Use product's image URL
                       fit: BoxFit.cover,// Adjust height as needed
                       height: MediaQuery.of(context).size.height /2.5,
                       width: double.infinity,
@@ -56,16 +76,39 @@ class DetailsRecommendationScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Name Plants',
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xff000000),
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Plant Name',
+                          maxLines: 1,
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xff000000),
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(
+                            widget.Product.isFavorite == true ? Icons.favorite : Icons.favorite_border,
+                            color: widget.Product.isFavorite == true ? Colors.red : Colors.grey,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              widget.Product.isFavorite = !widget.Product.isFavorite;
+                            });
+                            _toggleFavorite(widget.Product);
+                            widget.Product.isFavorite == true? FirebaseFirestore.instance.collection("category").doc(widget.Product.idPlants).update({
+                              "isFavorite":true,
+                            }) :FirebaseFirestore.instance.collection("category").doc(widget.Product.idPlants).update({
+                              "isFavorite":false,
+                            }) ;
+                          },
+                        ),
+                      ],
                     ),
                     Text(
-                      Product.planetName.toString(),
+                      widget.Product.planetName.toString(),
                       style: TextStyle(
                         fontSize: 18,
                         color: Color(0xff979595),
@@ -91,7 +134,7 @@ class DetailsRecommendationScreen extends StatelessWidget {
                     ),
                     SizedBox(height: 5),
                     Text(
-                      Product.Place.toString(),
+                      widget.Product.Place.toString(),
                       style: TextStyle(
                         fontSize: 18,
                         color: Color(0xff979595),
@@ -118,7 +161,7 @@ class DetailsRecommendationScreen extends StatelessWidget {
                     ),
                     SizedBox(height: 5),
                     Text(
-                      Product.planetDescriotion.toString(),
+                      widget.Product.planetDescriotion.toString(),
                       style: TextStyle(
                         fontSize: 18,
                         color: Color(0xff979595),
@@ -143,7 +186,7 @@ class DetailsRecommendationScreen extends StatelessWidget {
                     ),
                     SizedBox(height: 5),
                     Text(
-                      Product.date.toString(),
+                      widget.Product.date.toString(),
                       style: TextStyle(
                         fontSize: 18,
                         color: Color(0xff979595),
@@ -167,7 +210,7 @@ class DetailsRecommendationScreen extends StatelessWidget {
                     ),
                     SizedBox(height: 5),
                     Text(
-                      Product.StartDate.toString(),
+                      widget.Product.StartDate.toString(),
                       style: TextStyle(
                         fontSize: 18,
                         color: Color(0xff979595),
@@ -192,7 +235,7 @@ class DetailsRecommendationScreen extends StatelessWidget {
                     SizedBox(height: 5),
 
                     Text(
-                      Product.EndDate.toString(),
+                      widget.Product.EndDate.toString(),
                       style: TextStyle(
                         fontSize: 18,
                         color: Color(0xff979595),
@@ -219,6 +262,4 @@ class DetailsRecommendationScreen extends StatelessWidget {
     );
 
   }
-
-
 }
