@@ -6,8 +6,8 @@ import 'package:flutter_application_6/widgets/background-color.dart';
 import 'package:flutter_application_6/widgets/bottombar.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:intl/intl.dart';
-import 'package:timezone/timezone.dart'as tz;
-import 'package:timezone/data/latest.dart'as tz;
+import 'package:timezone/timezone.dart' as tz;
+import 'package:timezone/data/latest.dart' as tz;
 
 class AddReminderPage extends StatefulWidget {
   @override
@@ -19,7 +19,7 @@ class _AddReminderPageState extends State<AddReminderPage> {
 
   TextEditingController _dateController = TextEditingController();
   TextEditingController _timeController = TextEditingController();
-  DateTime dateTimeNow =DateTime.now();
+  DateTime dateTimeNow = DateTime.now();
   TextEditingController _plantNameController = TextEditingController();
 
   bool _isDatePickerVisible = false;
@@ -30,11 +30,10 @@ class _AddReminderPageState extends State<AddReminderPage> {
   String? selectTypeCateugore;
   List<DropdownMenuItem<String>> _dropdownItems = [];
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-      FlutterLocalNotificationsPlugin();
+  FlutterLocalNotificationsPlugin();
 
-  // Assuming you have a collection named 'category' in Firestore
   final CollectionReference categoryCollection =
-      FirebaseFirestore.instance.collection('category');
+  FirebaseFirestore.instance.collection('category');
   late Stream<List<String>> categoriesStream;
 
   @override
@@ -43,52 +42,54 @@ class _AddReminderPageState extends State<AddReminderPage> {
         querySnapshot.docs.map((doc) => doc['planetName'] as String).toList());
     super.initState();
     AndroidInitializationSettings androidInitializationSettings =
-        AndroidInitializationSettings("@mipmap/ic_launcher");
+    AndroidInitializationSettings("@mipmap/ic_launcher");
     InitializationSettings initializationSettings = InitializationSettings(
         android: androidInitializationSettings,
         iOS: null,
         macOS: null,
         linux: null);
     flutterLocalNotificationsPlugin.initialize(initializationSettings);
+
   }
 
-  showNotefication() {
-
+  showNotification() {
     AndroidNotificationDetails androidInitializationSettings =
-        AndroidNotificationDetails("flutter_application_6", "Notify Me",
-            importance: Importance.high);
+    AndroidNotificationDetails("flutter_application_6", "Notify Me",
+        importance: Importance.high);
     NotificationDetails notificationDetails = NotificationDetails(
         android: androidInitializationSettings,
         iOS: null,
         macOS: null,
         linux: null);
-  flutterLocalNotificationsPlugin.show(01, selectTypeCateugore, _timeController.text, notificationDetails);
-  //   tz.initializeTimeZones();
-  //   tz.TZDateTime scheduledAT = tz.TZDateTime.from(dateTimeNow, tz.local);
-  //   flutterLocalNotificationsPlugin.zonedSchedule(
-  //       0, selectTypeCateugore,
-  //       _timeController.text,
-  //       scheduledAT,
-  //       notificationDetails,
-  //       uiLocalNotificationDateInterpretation:
-  //       UILocalNotificationDateInterpretation.wallClockTime,
-  //       androidAllowWhileIdle: true);
+    // flutterLocalNotificationsPlugin.show(
+    //     01, selectTypeCateugore, _timeController.text, notificationDetails);
+      tz.initializeTimeZones();
+      tz.TZDateTime scheduledAT = tz.TZDateTime.from(dateTimeNow, tz.local);
+      flutterLocalNotificationsPlugin.zonedSchedule(
+          0, selectTypeCateugore,
+          _timeController.text,
+          scheduledAT,
+          notificationDetails,
+          uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.wallClockTime,
+          androidAllowWhileIdle: true);
   }
 
   Future<void> _selectDate(TextEditingController controller) async {
     try {
-      final DateTime? newSlectedData = await showDatePicker(
+      final DateTime? newSelectedDate = await showDatePicker(
         context: context,
-        initialDate:dateTimeNow,
+        initialDate: dateTimeNow,
         firstDate: DateTime.now(),
         lastDate: DateTime(2101),
       );
-      if (newSlectedData == null) {
-       return null;
+      if (newSelectedDate == null) {
+        return;
       }
       setState(() {
-        dateTimeNow = newSlectedData;
-        _dateController.text = "${dateTimeNow.year}/${dateTimeNow.month}/${dateTimeNow.day}";
+        dateTimeNow = newSelectedDate;
+        _dateController.text =
+        "${dateTimeNow.year}/${dateTimeNow.month}/${dateTimeNow.day}";
       });
     } catch (e) {
       print(e);
@@ -102,10 +103,10 @@ class _AddReminderPageState extends State<AddReminderPage> {
     );
 
     if (selectedTime == null) {
-    return null;
+      return;
     }
-    _timeController.text= "${selectedTime.hour}:${selectedTime.minute}:${selectedTime.period.toString()}";
-    DateTime newDT =DateTime(
+    _timeController.text = "${selectedTime.hour}:${selectedTime.minute}";
+    DateTime newDT = DateTime(
       dateTimeNow.year,
       dateTimeNow.month,
       dateTimeNow.day,
@@ -125,14 +126,13 @@ class _AddReminderPageState extends State<AddReminderPage> {
       return;
     }
 
-    // Convert the time to 24-hour format and combine with the date
     final date = _dateController.text;
     final time = _timeController.text;
     final dateTimeString = "$date $time";
 
     try {
       final parsedDateTime =
-          DateFormat("yyyy-MM-dd h:mm a").parse(dateTimeString);
+      DateFormat("yyyy/MM/dd HH:mm").parse(dateTimeString);
       await FirebaseFirestore.instance.collection('reminders').add({
         'plantName': selectTypeCateugore,
         'date': _dateController.text,
@@ -143,7 +143,7 @@ class _AddReminderPageState extends State<AddReminderPage> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('Reminder set successfully'),
       ));
-      showNotefication;
+      showNotification();
       Navigator.pop(context);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -171,14 +171,13 @@ class _AddReminderPageState extends State<AddReminderPage> {
             child: Center(
               child: Image.asset(
                 'assets/logo1.png',
-                // قم بتغيير هذا بمسار واسم ملف الصورة الخاص بك
                 width: 170,
                 height: 170,
               ),
             ),
           ),
           Positioned(
-            top: 110, // تحديد الارتفاع من الأعلى
+            top: 110,
             left: 0,
             right: 0,
             child: Center(
@@ -192,7 +191,7 @@ class _AddReminderPageState extends State<AddReminderPage> {
             ),
           ),
           Positioned(
-            top: 180, // تحديد الارتفاع من الأعلى
+            top: 180,
             left: 0,
             right: 0,
             child: Center(
@@ -203,10 +202,10 @@ class _AddReminderPageState extends State<AddReminderPage> {
                     padding: EdgeInsets.symmetric(horizontal: 20, vertical: 1),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(25),
-                      color: Color.fromRGBO(88, 187, 128, 100), // حدود مستديرة
+                      color: Color.fromRGBO(88, 187, 128, 100),
                       border: Border.all(
-                        color: Color.fromRGBO(88, 187, 128, 100), // لون الحدود
-                        width: 2, // سمك الحدود
+                        color: Color.fromRGBO(88, 187, 128, 100),
+                        width: 2,
                       ),
                     ),
                     child: TextButton(
@@ -226,15 +225,15 @@ class _AddReminderPageState extends State<AddReminderPage> {
                       },
                     ),
                   ),
-                  SizedBox(width: 5), // مسافة بين العناصر
+                  SizedBox(width: 5),
                   Container(
                     padding: EdgeInsets.symmetric(horizontal: 20, vertical: 1),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(25),
                       color: Color.fromRGBO(88, 187, 128, 100),
                       border: Border.all(
-                        color: Color.fromRGBO(88, 187, 128, 100), // لون الحدود
-                        width: 2, // سمك الحدود
+                        color: Color.fromRGBO(88, 187, 128, 100),
+                        width: 2,
                       ),
                     ),
                     child: TextButton(
@@ -264,7 +263,7 @@ class _AddReminderPageState extends State<AddReminderPage> {
             right: 0,
             child: Center(
               child: Container(
-                width: 390, // يمكنك تغيير القيمة لتحديد العرض المناسب
+                width: 390,
                 padding: EdgeInsets.symmetric(horizontal: 35, vertical: 10),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(20),
@@ -308,28 +307,28 @@ class _AddReminderPageState extends State<AddReminderPage> {
                         ),
                         hint: selectTypeCateugore == null
                             ? Container(
-                                child: Text(
-                                  " ",
-                                  textAlign: TextAlign.right,
-                                  style: TextStyle(),
-                                ),
-                              )
+                          child: Text(
+                            " ",
+                            textAlign: TextAlign.right,
+                            style: TextStyle(),
+                          ),
+                        )
                             : Container(
-                                padding: EdgeInsets.symmetric(horizontal: 25),
-                                child: Text(selectTypeCateugore.toString(),
-                                    style: TextStyle(
-                                      fontSize: 4,
-                                      color: Colors.black,
-                                    )),
-                              ),
+                          padding: EdgeInsets.symmetric(horizontal: 25),
+                          child: Text(selectTypeCateugore.toString(),
+                              style: TextStyle(
+                                fontSize: 4,
+                                color: Colors.black,
+                              )),
+                        ),
                         isExpanded: true,
                         items: snapshot.data!
                             .map(
                               (value) => DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(value),
-                              ),
-                            )
+                            value: value,
+                            child: Text(value),
+                          ),
+                        )
                             .toList(),
                         borderRadius: BorderRadius.circular(10),
                         menuMaxHeight: 260,
@@ -361,7 +360,7 @@ class _AddReminderPageState extends State<AddReminderPage> {
                     },
                     child: Container(
                       padding:
-                          EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10),
                         color: Color.fromRGBO(88, 187, 128, 100),
@@ -424,7 +423,7 @@ class _AddReminderPageState extends State<AddReminderPage> {
                     },
                     child: Container(
                       padding:
-                          EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10),
                         color: Color.fromRGBO(88, 187, 128, 100),
@@ -468,7 +467,7 @@ class _AddReminderPageState extends State<AddReminderPage> {
                           hintText: 'Time',
                           filled: true,
                           suffixIcon:
-                              Icon(Icons.access_time_outlined, size: 30),
+                          Icon(Icons.access_time_outlined, size: 30),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),
@@ -493,10 +492,9 @@ class _AddReminderPageState extends State<AddReminderPage> {
                 children: [
                   InkWell(
                     onTap: _setReminder,
-                    // _setReminder,
                     child: Container(
                       padding:
-                          EdgeInsets.symmetric(horizontal: 35, vertical: 10),
+                      EdgeInsets.symmetric(horizontal: 35, vertical: 10),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10),
                         color: Color.fromRGBO(88, 187, 128, 100),

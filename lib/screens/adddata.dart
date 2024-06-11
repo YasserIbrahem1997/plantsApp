@@ -1086,6 +1086,7 @@ class _AddDataState extends State<AddData> {
                        'difficult': selectedValueDifficulty,
                        'cleaning': selectedValueCleaning,
                        'Place': selectedValuePlace,
+                       'isFavorite': false,
                      }).then((value) {
                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                          content: Text("Sending Data"),

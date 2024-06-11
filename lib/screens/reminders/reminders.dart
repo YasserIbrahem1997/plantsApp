@@ -148,7 +148,7 @@ class _RemindersPageState extends State<ReminderPage> {
             left: 0,
             right: 0,
             child: Container(
-              height: MediaQuery.of(context).size.height / 1.5,
+              height: MediaQuery.of(context).size.height / 1.65,
               color: Colors.transparent,
               child: StreamBuilder<QuerySnapshot>(
                 stream: FirebaseFirestore.instance.collection('reminders').snapshots(),

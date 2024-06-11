@@ -1,7 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_6/model/get_data_home.dart';
 import 'package:flutter_application_6/screens/reminders/reminders.dart';
 import 'package:flutter_application_6/widgets/background-color.dart';
 import 'package:flutter_application_6/widgets/bottombar.dart';
+
+import 'e-commerce_screens/Plantscreen.dart';
 
 class AllPlantsPage extends StatelessWidget {
   
@@ -15,6 +20,7 @@ class AllPlantsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       body: Stack(
         children: [
@@ -67,7 +73,7 @@ class AllPlantsPage extends StatelessWidget {
                       ),
                     ),
                     child: TextButton(
-                      child: Text('All Plants ',
+                      child: Text('All Favorite ',
                           style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
@@ -120,319 +126,146 @@ class AllPlantsPage extends StatelessWidget {
               ),
               ),
               ),
-        
-        
+
           Positioned(
             top: 240,
             left: 10,
             right: 10,
-            child:   Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Plants',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: Color.fromARGB(255, 4, 84, 64),
+            bottom: 10,
+            child: StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance.collection('users').doc(FirebaseAuth.instance.currentUser!.email).collection("favorites").snapshots(),
+              builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                }
+
+                if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                }
+
+                var documents = snapshot.data?.docs ?? [];
+
+                if (documents.isEmpty) {
+                  return Container(
+                    height: MediaQuery.of(context).size.height / 1,
+                    padding: EdgeInsets.all(12.0),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                  ),
-                  InkWell(
-                    onTap: () {
-                      // Add your onPressed logic for '+Add Plants' button
-                    },
-                    child: Text(
-                      '+Add Plant',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color:Color.fromARGB(255, 4, 84, 64),
+                    child: Center(
+                      child: Text(
+                        "No Have Favorite",
+                        style: TextStyle(
+                          fontSize: 15,
+                          color: Colors.black,
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-          ),
-              Positioned(
-            top: 270,
-            left: 10,
-            right: 10,
-            child:
-              Stack(
-                children: [
-                  Container(
-                    margin: EdgeInsets.symmetric(horizontal: 16),
-                    height: 120,
-                    width: 350,
-                    decoration: BoxDecoration(
-                      color: Color(0xffa5cab9),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  
-                    child: Stack(
-                      children: [
-                        Positioned(
-                          left: 10,
-                          top: -7,
-                          child: Container(
-                            width: 60,
-                            height: 100,
-                            decoration: BoxDecoration(
-                              color: Color(0xffcbd4cb),
-                              shape: BoxShape.circle,
-                            ),
-                          ),
+                  );
+                }
+
+                List<ProductHome> productsBySection = documents.map((doc) {
+                  var data = doc.data() as Map<String, dynamic>;
+                  return ProductHome.fromJson(data);
+                }).toList();
+
+                return ListView.builder(
+                  itemCount:productsBySection.length,
+                  itemBuilder: (context, index) {
+                    var product = productsBySection[index];
+
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) {
+                          return Plantscreen(Product: product);
+                        }));
+                      },
+                      child: Container(
+                        margin: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+                        height: 120,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: Color(0xffa5cab9),
+                          borderRadius: BorderRadius.circular(10),
                         ),
-                        Padding(
-                          padding: EdgeInsets.only(
-                            left: 90,
-                            top: 20, // Adjusted top padding here
-                            bottom: 10,
-                          ), // Adjusted padding here
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                        child: Row(
+                          children: [
+                            Container(
+                              width:130,
+                              height: 120,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(50)
+                              ),
+                              padding: const EdgeInsets.all(8.0),
+                              child: Image.network(
+                                product.imageUrls![0],
+                                fit: BoxFit.fill,
+                              ),
+                            ),
+                            Expanded(
+                              child: Row(
+                                // crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Plants',
-                                        style: TextStyle(
-                                          fontSize: 22,
-                                          fontWeight: FontWeight.bold,
-                                          color: Color.fromARGB(255, 4, 84, 64),
-                                        ),
+                                  Flexible(
+                                    flex:4,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            product.planetName.toString(),
+                                            style: TextStyle(
+                                              fontSize: 15,
+
+                                              color: Color.fromARGB(255, 4, 84, 64),
+                                            ),
+                                          ),
+                                          SizedBox(height: 8),
+                                          Text(
+                                           product.plantPricing.toString() + " EG",
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              color: Color.fromARGB(255, 4, 84, 64),
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                      SizedBox(height: 1),
-                                      Text(
-                                        'No Reminder set',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          color:Color.fromARGB(255, 4, 84, 64),
-                                        ),
-                                      ),
-                                      SizedBox(
-                                          height: 4), // Add space for the line
-                                      Container(
-                                        height: 1.0,
-                                        color: Color(
-                                            0xff4d8664), // Adjust line color
-                                        width:
-                                            220, // Adjust line width as needed
-                                      ),
-                                    ],
+                                    ),
+                                  ),
+
+                                  Flexible(
+                                    flex: 2,
+                                    child: Container(
+                                      margin: const EdgeInsets.only(
+                                          right: 40,bottom: 30),
+                                      child: IconButton(
+                                        icon: Icon(Icons.favorite,),
+                                        onPressed: (){
+                                          FirebaseFirestore.instance.collection('users').doc(FirebaseAuth.instance.currentUser!.email).collection("favorites").doc(product.planetName).delete();
+                                          FirebaseFirestore.instance.collection("category").doc(product.idPlants).update({
+                                            "isFavorite":false,
+                                          });
+                                        },
+                                        color: Colors.red,),
+                                    ),
                                   ),
                                 ],
                               ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  Image.asset('assets/Waterinjg.png', width:30, height: 30,),
-                                  SizedBox(width: 20,),
-                                  Image.asset('assets/Waterinjg.png', width: 30, height: 30,)
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              ),
-                Positioned(
-            top: 400,
-            left: 10,
-            right: 10,
-            child:
-              Stack(
-                children: [
-                  Container(
-                    margin: EdgeInsets.symmetric(horizontal: 16),
-                    height: 120,
-                    width: 350,
-                    decoration: BoxDecoration(
-                      color: Color(0xffa5cab9),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Stack(
-                      children: [
-                        Positioned(
-                          left: 10,
-                          top: -7,
-                          child: Container(
-                            width: 60,
-                            height: 100,
-                            decoration: BoxDecoration(
-                              color: Color(0xffcbd4cb),
-                              shape: BoxShape.circle,
                             ),
-                          ),
+                          ],
                         ),
-                        Padding(
-                          padding: EdgeInsets.only(
-                            left: 90,
-                            top: 20, // Adjusted top padding here
-                            bottom: 10,
-                          ), // Adjusted padding here
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Plants',
-                                        style: TextStyle(
-                                          fontSize: 22,
-                                          fontWeight: FontWeight.bold,
-                                          color: Color.fromARGB(255, 4, 84, 64),
-                                        ),
-                                      ),
-                                      SizedBox(height: 1),
-                                      Text(
-                                        'No Reminder set',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          color: Color.fromARGB(255, 4, 84, 64),
-                                        ),
-                                      ),
-                                      SizedBox(
-                                          height: 4), // Add space for the line
-                                      Container(
-                                        height: 1.0,
-                                        color: Color(
-                                            0xff4d8664), // Adjust line color
-                                        width:
-                                            220, // Adjust line width as needed
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                                Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  Image.asset('assets/Waterinjg.png', width:30, height: 30,),
-                                  SizedBox(width: 20,),
-                                  Image.asset('assets/Waterinjg.png', width: 30, height: 30,)
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-                ),
-            Positioned(
-            top: 530,
-            left: 10,
-            right: 10,
-            child:
-              Stack(
-                children: [
-                  Container(
-                    margin: EdgeInsets.symmetric(horizontal: 16),
-                    height: 120,
-                    width: 350,
-                    decoration: BoxDecoration(
-                      color: Color(0xffa5cab9),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Stack(
-                      children: [
-                        Positioned(
-                          left: 10,
-                          top: -7,
-                          child: Container(
-                            width: 60,
-                            height: 100,
-                            decoration: BoxDecoration(
-                              color: Color(0xffcbd4cb),
-                              shape: BoxShape.circle,
-                              
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(
-                            left: 90,
-                            top: 20, // Adjusted top padding here
-                            bottom: 10,
-                          ), // Adjusted padding here
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Plants',
-                                        style: TextStyle(
-                                          fontSize: 22,
-                                          fontWeight: FontWeight.bold,
-                                          color: Color.fromARGB(255, 4, 84, 64),
-                                        ),
-                                      ),
-                                      SizedBox(height: 1),
-                                      Text(
-                                        'No Reminder set',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          color: Color.fromARGB(255, 4, 84, 64),
-                                        ),
-                                      ),
-                                      SizedBox(
-                                          height: 4), // Add space for the line
-                                      Container(
-                                        height: 1.0,
-                                        color: Color.fromARGB(255, 4, 84, 64), // Adjust line color
-                                        width:
-                                            220, // Adjust line width as needed
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                                Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  Image.asset('assets/Waterinjg.png', width:30, height: 30,),
-                                  SizedBox(width: 20,),
-                                  Image.asset('assets/Waterinjg.png', width: 30, height: 30,)
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+                      ),
+                    );
+                  },
+                );
+
+              },
             ),
+          ),
+
         ],
           ),
       bottomNavigationBar: CustomBottomNavigationBar(
@@ -444,3 +277,4 @@ class AllPlantsPage extends StatelessWidget {
   
   void setState(Null Function() param0) {}
 }
+

@@ -60,6 +60,22 @@ class _HomePageState extends State<HomePage> {
       _selectedIndex = index;
     });
   }
+  void _toggleFavorite(ProductHome product) async {
+    final userId = FirebaseAuth.instance.currentUser!.email;
+    final favoritesCollection = FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('favorites');
+
+    if (product.isFavorite) {
+      // Add to favorites
+      await favoritesCollection.doc(product.planetName).set(product.toJson());
+    } else {
+      // Remove from favorites
+      await favoritesCollection.doc(product.planetName).delete();
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -306,11 +322,11 @@ class _HomePageState extends State<HomePage> {
                             var product = productsBySection[index];
 
                             return GestureDetector(
-                             onTap: (){
-                               Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) {
-                                 return Plantscreen(Product:productsBySection[index]);
-                               }));
-                             },
+                              onTap: () {
+                                Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) {
+                                  return Plantscreen(Product: productsBySection[index]);
+                                }));
+                              },
                               child: Container(
                                 width: 200,
                                 height: 300,
@@ -319,20 +335,42 @@ class _HomePageState extends State<HomePage> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Container(
-                                      decoration:BoxDecoration(
-
+                                      decoration: BoxDecoration(
                                         borderRadius: BorderRadius.all(Radius.circular(4)),
-                                ),
+                                      ),
                                       width: 200,
-                                      height: 200,
-                                      child:Image.network(
-                                          product.imageUrls![0],
+                                      height: 180,
+                                      child: Image.network(
+                                        product.imageUrls![0],
                                         fit: BoxFit.fill,
-
                                       ),
                                     ),
-                                    Text(product.planetName ?? 'No Name',
-                                    maxLines: 1,),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          product.planetName ?? 'No Name',
+                                          maxLines: 1,
+                                        ),
+                                        IconButton(
+                                          icon: Icon(
+                                            product.isFavorite == true ? Icons.favorite : Icons.favorite_border,
+                                            color: product.isFavorite == true ? Colors.red : Colors.grey,
+                                          ),
+                                          onPressed: () {
+                                            setState(() {
+                                              product.isFavorite = !product.isFavorite;
+                                            });
+                                            _toggleFavorite(product);
+                                            product.isFavorite == true? FirebaseFirestore.instance.collection("category").doc(product.idPlants).update({
+                                              "isFavorite":true,
+                                            }) :FirebaseFirestore.instance.collection("category").doc(product.idPlants).update({
+                                              "isFavorite":false,
+                                            }) ;
+                                          },
+                                        ),
+                                      ],
+                                    ),
                                     Text('${product.plantPricing ?? 'No Price'} EG'),
                                   ],
                                 ),
@@ -341,6 +379,7 @@ class _HomePageState extends State<HomePage> {
                           },
                           separatorBuilder: (BuildContext context, int index) => SizedBox(width: 15),
                         );
+
                       },
                     ),
                   ),
@@ -405,11 +444,11 @@ class _HomePageState extends State<HomePage> {
                             var product = productsBySection[index];
 
                             return GestureDetector(
-                             onTap: (){
-                               Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) {
-                                 return Plantscreen(Product:productsBySection[index]);
-                               }));
-                             },
+                              onTap: () {
+                                Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) {
+                                  return Plantscreen(Product: productsBySection[index]);
+                                }));
+                              },
                               child: Container(
                                 width: 200,
                                 height: 300,
@@ -418,19 +457,42 @@ class _HomePageState extends State<HomePage> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Container(
-                                      decoration:BoxDecoration(
-
+                                      decoration: BoxDecoration(
                                         borderRadius: BorderRadius.all(Radius.circular(4)),
-                                ),
+                                      ),
                                       width: 200,
-                                      height: 200,
-                                      child:Image.network(
-                                          product.imageUrls![0],
+                                      height: 180,
+                                      child: Image.network(
+                                        product.imageUrls![0],
                                         fit: BoxFit.fill,
-
                                       ),
                                     ),
-                                    Text(product.planetName ?? 'No Name',maxLines: 1,overflow: TextOverflow.ellipsis,),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          product.planetName ?? 'No Name',
+                                          maxLines: 1,
+                                        ),
+                                        IconButton(
+                                          icon: Icon(
+                                            product.isFavorite == true ? Icons.favorite : Icons.favorite_border,
+                                            color: product.isFavorite == true ? Colors.red : Colors.grey,
+                                          ),
+                                          onPressed: () {
+                                            setState(() {
+                                              product.isFavorite = !product.isFavorite;
+                                            });
+                                            _toggleFavorite(product);
+                                            product.isFavorite == true? FirebaseFirestore.instance.collection("category").doc(product.idPlants).update({
+                                              "isFavorite":true,
+                                            }) :FirebaseFirestore.instance.collection("category").doc(product.idPlants).update({
+                                              "isFavorite":false,
+                                            }) ;
+                                          },
+                                        ),
+                                      ],
+                                    ),
                                     Text('${product.plantPricing ?? 'No Price'} EG'),
                                   ],
                                 ),
